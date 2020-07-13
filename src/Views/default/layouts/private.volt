@@ -11,7 +11,7 @@
     </div>
 
     <div id="navbar" class="navbar-menu">
-        <div class="navbar-end">
+        <div class="navbar-start">
             {{ link_to('/', 'Home', 'class':'navbar-item') }}
 
             <a class="navbar-item">
@@ -39,20 +39,17 @@
                     </a>
                 </div>
             </div>
+        </div>
 
-            
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link" aria-expanded="true" data-target="navbar">
-                    More
-                </a>
-
-                <div class="navbar-dropdown is-right">
-                    {{ link_to('/signup', 'Sign up', 'class':'navbar-item') }}
-                    {{ link_to('/signup', 'Sign Up', 'class':'navbar-item ') }}
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    {{ link_to('/signup', 'Sign Up', 'class':'button is-primary') }}
+                    <a class="button is-light">
+                        Log in
+                    </a>
                 </div>
             </div>
-
-            
         </div>
     </div>
 </nav>
