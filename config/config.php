@@ -10,7 +10,7 @@ use function App\root_path;
 defined('BASE_PATH') || define('BASE_PATH', getenv('BASE_PATH') ?: realpath(dirname(__FILE__) . '/../..'));
 defined('APP_PATH') || define('APP_PATH', BASE_PATH . '/src');
 defined('BASE_URI') || define('BASE_URI', $_GET['_url'] ?? '/');
-defined('PROJECT_PATH') || define('PROJECT_PATH', str_replace(BASE_URI, '/', urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))));
+defined('PROJECT_PATH') || define('PROJECT_PATH', rtrim(str_replace(BASE_URI, '/', urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))), '/'));
 
 return [
     'database'    => [

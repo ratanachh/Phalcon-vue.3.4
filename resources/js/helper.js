@@ -10,6 +10,6 @@ String.prototype.rtrim = function(char) {
 
 Vue.mixin({
     methods: {
-        link_to: (path) => window.baseURL + path.ltrim('/')
+        link_to: (path) => window.baseURL + '/' + path.ltrim('/')
     }
 });

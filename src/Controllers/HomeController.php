@@ -11,13 +11,11 @@ class HomeController extends ControllerBase
      */
     public function initialize(): void
     {
-//        $this->view->setTemplateBefore('public');
-        $this->session->set('user-name', 'Michael');
+       $this->view->setTemplateBefore('public');
     }
 
     public function indexAction(): void
     {
-        echo $this->session->get('user-name');
         echo 'Home index';
     }
 
