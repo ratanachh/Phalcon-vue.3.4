@@ -2,199 +2,155 @@
 
 namespace App\Model;
 
-class Users extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+use Phalcon\Security;
+use Phalcon\Validation;
+use Phalcon\Validation\Validator\Uniqueness;
+
+/**
+ * All the users registered in the application
+ */
+class Users extends Model
 {
     /**
-     *
      * @var integer
-     * @Primary
-     * @Identity
-     * @Column(type="integer", length=32, nullable=false)
      */
-    protected $id;
+    public $id;
 
     /**
-     *
      * @var string
-     * @Column(type="string", length=255, nullable=true)
      */
-    protected $first_name;
+    public $name;
 
     /**
-     *
      * @var string
-     * @Column(type="string", length=255, nullable=true)
      */
-    protected $last_name;
+    public $email;
 
     /**
-     *
      * @var string
-     * @Column(type="string", length=255, nullable=true)
      */
-    protected $pass;
+    public $password;
 
     /**
-     *
      * @var string
-     * @Column(type="string", length=255, nullable=false)
      */
-    protected $login;
+    public $mustChangePassword;
 
     /**
-     * Method to set the value of field id
-     *
-     * @param integer $id
-     * @return $this
+     * @var string
      */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
+    public $profilesId;
 
     /**
-     * Method to set the value of field first_name
-     *
-     * @param string $first_name
-     * @return $this
+     * @var string
      */
-    public function setFirstName($first_name)
-    {
-        $this->first_name = $first_name;
-
-        return $this;
-    }
+    public $banned;
 
     /**
-     * Method to set the value of field last_name
-     *
-     * @param string $last_name
-     * @return $this
+     * @var string
      */
-    public function setLastName($last_name)
-    {
-        $this->last_name = $last_name;
-
-        return $this;
-    }
+    public $suspended;
 
     /**
-     * Method to set the value of field pass
-     *
-     * @param string $pass
-     * @return $this
+     * @var string
      */
-    public function setPass($pass)
-    {
-        $this->pass = $pass;
+    public $active;
 
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field login
-     *
-     * @param string $login
-     * @return $this
-     */
-    public function setLogin($login)
-    {
-        $this->login = $login;
-
-        return $this;
-    }
-
-    /**
-     * Returns the value of field id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Returns the value of field first_name
-     *
-     * @return string
-     */
-    public function getFirstName()
-    {
-        return $this->first_name;
-    }
-
-    /**
-     * Returns the value of field last_name
-     *
-     * @return string
-     */
-    public function getLastName()
-    {
-        return $this->last_name;
-    }
-
-    /**
-     * Returns the value of field pass
-     *
-     * @return string
-     */
-    public function getPass()
-    {
-        return $this->pass;
-    }
-
-    /**
-     * Returns the value of field login
-     *
-     * @return string
-     */
-    public function getLogin()
-    {
-        return $this->login;
-    }
-
-    /**
-     * Initialize method for model.
-     */
     public function initialize()
     {
-	    $this->setSchema("public");
-    }
+        $this->hasOne('profilesId', Profiles::class, 'id', [
+            'alias'    => 'profile',
+            'reusable' => true,
+        ]);
 
-	/**
-	 * Returns table name mapped in the model.
-	 *
-	 * @return string
-	 */
-    public function getSource()
-    {
-        return 'users';
+        // $this->hasMany('id', SuccessLogins::class, 'usersId', [
+        //     'alias'      => 'successLogins',
+        //     'foreignKey' => [
+        //         'message' => 'User cannot be deleted because he/she has activity in the system',
+        //     ],
+        // ]);
+
+        // $this->hasMany('id', PasswordChanges::class, 'usersId', [
+        //     'alias'      => 'passwordChanges',
+        //     'foreignKey' => [
+        //         'message' => 'User cannot be deleted because he/she has activity in the system',
+        //     ],
+        // ]);
+
+        // $this->hasMany('id', ResetPasswords::class, 'usersId', [
+        //     'alias'      => 'resetPasswords',
+        //     'foreignKey' => [
+        //         'message' => 'User cannot be deleted because he/she has activity in the system',
+        //     ],
+        // ]);
     }
 
     /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     *
-     * @return Users[]|Users
+     * Before create the user assign a password
      */
-	public static function find($parameters = null)
+    public function beforeValidationOnCreate()
     {
-        return parent::find($parameters);
+        if (empty($this->password)) {
+            // Generate a plain temporary password
+            $tempPassword = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode(openssl_random_pseudo_bytes(12)));
+
+            // The user must change its password in first login
+            $this->mustChangePassword = 'Y';
+
+            /** @var Security $security */
+            $security = $this->getDI()->getShared('security');
+            // Use this password as default
+            $this->password = $security->hash($tempPassword);
+        } else {
+            // The user must not change its password in first login
+            $this->mustChangePassword = 'N';
+        }
+
+        // The account must be confirmed via e-mail
+        // Only require this if emails are turned on in the config, otherwise account is automatically active
+        if ($this->getDI()->get('config')->useMail) {
+            $this->active = 'N';
+        } else {
+            $this->active = 'Y';
+        }
+
+        // The account is not suspended by default
+        $this->suspended = 'N';
+
+        // The account is not banned by default
+        $this->banned = 'N';
     }
 
-	/**
-	 * Allows to query the first record that match the specified conditions
-	 *
-	 * @param mixed $parameters
-	 * @return Users
-	 */
-	public static function findFirst($parameters = null)
+    /**
+     * Send a confirmation e-mail to the user if the account is not active
+     */
+    public function afterCreate()
     {
-        return parent::findFirst($parameters);
+        // // Only send the confirmation email if emails are turned on in the config
+        // if ($this->getDI()->get('config')->useMail && $this->active == 'N') {
+        //     $emailConfirmation          = new EmailConfirmations();
+        //     $emailConfirmation->usersId = $this->id;
+
+        //     if ($emailConfirmation->save()) {
+        //         $this->getDI()
+        //             ->getFlash()
+        //             ->notice('A confirmation mail has been sent to ' . $this->email);
+        //     }
+        // }
     }
 
+    /**
+     * Validate that emails are unique across users
+     */
+    public function validation()
+    {
+        $validator = new Validation();
+
+        $validator->add('email', new Uniqueness([
+            "message" => "The email is already registered",
+        ]));
+
+        return $this->validate($validator);
+    }
 }

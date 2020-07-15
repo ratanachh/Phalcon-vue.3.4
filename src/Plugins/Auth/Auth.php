@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace App\Plugins;
 
+use Phalcon\Di\Injectable;
 
-class Auth
+class Auth extends Injectable
 {
 
 }

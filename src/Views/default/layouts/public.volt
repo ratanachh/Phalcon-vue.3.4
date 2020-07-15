@@ -71,8 +71,8 @@
             {{ date("Y") }}
             Projects Group Team
 
-            {{ link_to("privacy", "Privacy Policy") }}
-            {{ link_to("terms", "Terms") }}
+            {{ link_to("/privacy", "Privacy Policy") }}
+            {{ link_to("/terms", "Terms") }}
         </span>
     </div>
 </footer>

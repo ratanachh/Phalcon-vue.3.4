@@ -5,7 +5,6 @@ namespace App\Providers;
 
 use App\Plugins\Acl;
 use App\Application;
-
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\DiInterface;
 

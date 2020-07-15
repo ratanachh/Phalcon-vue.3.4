@@ -21,19 +21,7 @@ $router->add('/login', 'Session::login')->via(['POST', 'GET']);
 /**
  * API
  */
-use Phalcon\Mvc\Micro;
 
-$app = new Micro();
-
-// Retrieves all robots
-$app->get(
-    '/api/robots',
-    function () {
-        
-    }
-);
-
-$app->handle(BASE_URI);
 
 /**
  * End API
@@ -45,3 +33,4 @@ $app->handle(BASE_URI);
  */
 $router->notFound(['controller' => 'error', 'action' => 'notFound']);
 $router->setDefaults(['controller' => 'home', 'action' => 'index']);
+$router->handle(BASE_URI);

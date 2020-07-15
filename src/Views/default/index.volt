@@ -10,7 +10,7 @@
     <div id="application">
         {{ content() }}
     </div>
-    <script>window.location.project_path = `{{ constant('PROJECT_PATH') }}`;</script>
+    <script>window.location.project_path = `{{ escaper.escapeJs(constant('PROJECT_PATH')) }}`;</script>
     {{ assets.outputJs('js') }}
 </body>
 </html>
